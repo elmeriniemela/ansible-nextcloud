@@ -1,5 +1,6 @@
-## Ansible role for django applications
+## Ansible role installing private NextCloud server
 
-Usage:
+After install, mount external SSD:
 
-* Todo
+* `mount -t ext4 /dev/sda1 /opt/website/nextcloud/data/elmeri/files/T5-SSD`
+* `sudo -u www-data php /opt/website/nextcloud/occ files:scan --all -vvv`
