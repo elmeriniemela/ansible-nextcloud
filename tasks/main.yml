@@ -1,0 +1,65 @@
+---
+
+- name: Download nextcloud.zip
+  tags: nextcloud
+  get_url:
+    url: "https://download.nextcloud.com/server/releases/nextcloud-{{ nextcloud_version }}.zip"
+    dest: /tmp/nextcloud.zip
+
+- name: "Install all dependencies"
+  tags: nextcloud
+  package:
+    name:
+      - unzip
+      - php-imagick
+      - php7.2-common
+      - php7.2-mysql
+      - php7.2-fpm
+      - php7.2-gd
+      - php7.2-json
+      - php7.2-curl
+      - php7.2-zip
+      - php7.2-xml
+      - php7.2-mbstring
+      - php7.2-bz2
+      - php7.2-intl
+      - php7.2-redis
+
+- name: "Extract /tmp/nextcloud.zip into {{ websites_home_dir }}/"
+  tags: nextcloud
+  unarchive:
+    src: /tmp/nextcloud.zip
+    remote_src: yes
+    dest: "{{ websites_home_dir }}/"
+    owner: "{{ websites_user }}"
+    group: "{{ websites_user }}"
+
+
+- name: "Add nginx conf file nextcloud apps"
+  tags: nextcloud
+  template:
+    src: nextcloud-nginx.conf
+    dest: "/etc/nginx/sites-enabled/{{ nextcloud_domain }}.conf"
+    force: true
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload nginx
+
+# - name: nextcloud.manual-install admin user
+#   tags: nextcloud
+#   command: "nextcloud.manual-install {{ nextcloud_admin_username }} {{ nextcloud_admin_password }}"
+#   register: result
+#   # failed_when:
+#   #   - '"System check identified no issues (0 silenced)." not in result.stdout'
+#   changed_when:
+#     - '"Nextcloud was successfully installed" in result.stdout'
+
+# - name: nextcloud.manual-install admin user
+#   tags: nextcloud
+#   command: "nextcloud.occ config:system:set trusted_domains 1 --value={{ nextcloud_domain }}"
+#   register: result
+#   # failed_when:
+#   #   - '"System check identified no issues (0 silenced)." not in result.stdout'
+#   changed_when:
+#     - '"System config value trusted_domains" in result.stdout'
